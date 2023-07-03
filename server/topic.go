@@ -2522,7 +2522,6 @@ func (t *Topic) replyGetSub(sess *Session, asUid types.Uid, authLevel auth.Level
 				if t.cat == types.TopicCatFnd {
 					mts.Private = sub.Private
 				}
-
 			}
 
 			meta.Sub = append(meta.Sub, mts)
