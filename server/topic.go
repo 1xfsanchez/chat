@@ -2430,16 +2430,21 @@ func (t *Topic) replyGetSub(sess *Session, asUid types.Uid, authLevel auth.Level
 					// get last message
 					msgs, _ := store.Messages.GetAll(sub.Topic, asUid, &types.QueryOpt{Limit: 1})
 					if len(msgs) > 0 {
-						content, ok := msgs[0].Content.(string)
+						var mtsLastMsg MsgLastMessageInfo
+						mtsLastMsg.From = msgs[0].From
+						mtsLastMsg.Seq = msgs[0].SeqId
+						mts.LastMessage = &mtsLastMsg
 
-						if ok {
-							var mtsLastMsg MsgLastMessageInfo
-							mtsLastMsg.From = msgs[0].From
-							mtsLastMsg.Seq = msgs[0].SeqId
-							mtsLastMsg.Content = content
-							mts.LastMessage = &mtsLastMsg
+						switch msgs[0].Content.(type) {
+						case string:
+							mtsLastMsg.Content = msgs[0].Content.(string)
+						case map[string]interface{}:
+							content := msgs[0].Content.(map[string]interface{})
+							txt, ok := content["txt"].(string)
+							if ok {
+								mtsLastMsg.Content = txt
+							}
 						}
-
 					}
 				}
 			} else {
@@ -2517,6 +2522,7 @@ func (t *Topic) replyGetSub(sess *Session, asUid types.Uid, authLevel auth.Level
 				if t.cat == types.TopicCatFnd {
 					mts.Private = sub.Private
 				}
+
 			}
 
 			meta.Sub = append(meta.Sub, mts)
