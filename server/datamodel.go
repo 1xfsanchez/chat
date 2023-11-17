@@ -518,6 +518,14 @@ type MsgTopicSub struct {
 
 	// Other user's last online timestamp & user agent
 	LastSeen *MsgLastSeenInfo `json:"seen,omitempty"`
+
+	LastMessage *MsgLastMessageInfo `json:"last_message,omitempty"`
+}
+
+type MsgLastMessageInfo struct {
+	Content string `json:"content,omitempty"`
+	From    string `json:"from,omitempty"`
+	Seq     int    `json:"seq,omitempty"`
 }
 
 func (src *MsgTopicSub) describe() string {
@@ -939,7 +947,7 @@ func NoErrAcceptedExplicitTs(id, topic string, serverTs, incomingReqTs time.Time
 			Text:      "accepted",
 			Topic:     topic,
 			Timestamp: serverTs,
-		}, Id: id,
+		}, Id:     id,
 		Timestamp: incomingReqTs,
 	}
 }

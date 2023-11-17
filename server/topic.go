@@ -2426,6 +2426,26 @@ func (t *Topic) replyGetSub(sess *Session, asUid types.Uid, authLevel auth.Level
 							UserAgent: sub.GetUserAgent(),
 						}
 					}
+
+					// get last message
+					msgs, _ := store.Messages.GetAll(sub.Topic, asUid, &types.QueryOpt{Limit: 1})
+					if len(msgs) > 0 {
+						var mtsLastMsg MsgLastMessageInfo
+						mtsLastMsg.From = msgs[0].From
+						mtsLastMsg.Seq = msgs[0].SeqId
+						mts.LastMessage = &mtsLastMsg
+
+						switch msgs[0].Content.(type) {
+						case string:
+							mtsLastMsg.Content = msgs[0].Content.(string)
+						case map[string]interface{}:
+							content := msgs[0].Content.(map[string]interface{})
+							txt, ok := content["txt"].(string)
+							if ok {
+								mtsLastMsg.Content = txt
+							}
+						}
+					}
 				}
 			} else {
 				// Mark subscriptions that the user does not care about.
